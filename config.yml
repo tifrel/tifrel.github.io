@@ -14,6 +14,8 @@ minify:
   disableXML: false
   minifyOutput: true
 
+googleAnalytics: UA-218706363-1
+
 languages:
   en:
     languageName: English
