@@ -1,0 +1,70 @@
+baseURL: http://tifrel.github.io/
+languageCode: en-us
+title: "Till's blog"
+theme: PaperMod
+
+enableInlineShortcodes: true
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+
+minify:
+  disableXML: false
+  minifyOutput: true
+
+languages:
+  en:
+    languageName: English
+    weight: 1
+    menu:
+      main:
+        # FIXME: enable archive, enable search
+        # - https://github.com/adityatelange/hugo-PaperMod/issues/129
+        # - https://adityatelange.github.io/hugo-PaperMod/posts/papermod/papermod-features/#search-page
+        # - name: Archive
+        #   url: archives
+        #   weight: 5
+        # - name: Search
+        #   url: search
+        #   weight: 10
+        - name: Tags
+          url: tags
+          weight: 10
+
+params:
+  # - https://adityatelange.github.io/hugo-PaperMod/posts/papermod/papermod-variables/
+  title:
+  description:
+    "Collection of interesting thoughts and techniques, assembled into
+    characters, words, sentences, paragraphs."
+  keywords: [Blog, Rust, Crypto, Blockchain]
+  author: Till
+
+  env: production
+  dateFormat: "2006-01-02"
+  showShareButtons: true
+  # ShowReadingTime: true
+  showPostNavLinks: true
+  showBreadcrumbs: true
+  showCodeCopyButtons: true
+  showToc: false
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: false
+  hidemeta: false
+  hideSummary: false
+  tocopen: false
+
+  homeInfoParams:
+    Title: "Till's Blog"
+    Content: "Rust 🦀 + Blockchain ⛓️ + Me 👨‍💻"
+
+  socialIcons:
+    - name: stackoverflow
+      url: https://stackoverflow.com/users/7525350/tifrel
+    - name: github
+      url: https://github.com/tifrel
+    - name: twitter
+      url: https://twitter.com/ti_frel
