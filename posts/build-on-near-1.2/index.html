@@ -1,0 +1,460 @@
+<!doctype html><html lang=en dir=auto>
+<head><meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
+<meta name=robots content="index, follow">
+<title>Build on NEAR: Our first smart contract (part 1.2) | Till's blog</title>
+<meta name=keywords content="Build on NEAR,Rust,NEAR protocol,Smart contracts">
+<meta name=description content="In the the last part, we explored Wasm compilation, smart contracts in general, and testing on NEAR. We&rsquo;ve already written tests for our toy example of a blockchained &ldquo;Buy Me A Coffee&rdquo;, which is where we pick up this post.
+The methods Let us start the development with the impl block, as our testing already tells us which methods are needed:
+// We require `env` to interact with the rest of the NEAR world, and of course // the types as a &#34;language&#34; for these interactions.">
+<meta name=author content="Till">
+<link rel=canonical href=http://tifrel.github.io/posts/build-on-near-1.2/>
+<link crossorigin=anonymous href=/assets/css/stylesheet.min.c88963fe2d79462000fd0fb1b3737783c32855d340583e4523343f8735c787f0.css integrity="sha256-yIlj/i15RiAA/Q+xs3N3g8MoVdNAWD5FIzQ/hzXHh/A=" rel="preload stylesheet" as=style>
+<script defer crossorigin=anonymous src=/assets/js/highlight.min.7680afc38aa6b15ddf158a4f3780b7b1f7dde7e91d26f073e6229bb7a0793c92.js integrity="sha256-doCvw4qmsV3fFYpPN4C3sffd5+kdJvBz5iKbt6B5PJI=" onload=hljs.initHighlightingOnLoad()></script>
+<link rel=icon href=http://tifrel.github.io/favicon.ico>
+<link rel=icon type=image/png sizes=16x16 href=http://tifrel.github.io/favicon-16x16.png>
+<link rel=icon type=image/png sizes=32x32 href=http://tifrel.github.io/favicon-32x32.png>
+<link rel=apple-touch-icon href=http://tifrel.github.io/apple-touch-icon.png>
+<link rel=mask-icon href=http://tifrel.github.io/safari-pinned-tab.svg>
+<meta name=theme-color content="#2e2e33">
+<meta name=msapplication-TileColor content="#2e2e33">
+<meta name=generator content="Hugo 0.92.0">
+<noscript>
+<style>#theme-toggle,.top-link{display:none}</style>
+<style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--hljs-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style>
+</noscript>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(function(a,e,f,g,b,c,d){a.GoogleAnalyticsObject=b,a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)},a[b].l=1*new Date,c=e.createElement(f),d=e.getElementsByTagName(f)[0],c.async=1,c.src=g,d.parentNode.insertBefore(c,d)}(window,document,'script','https://www.google-analytics.com/analytics.js','ga'),ga('create','UA-218706363-1','auto'),ga('send','pageview'))</script><meta property="og:title" content="Build on NEAR: Our first smart contract (part 1.2)">
+<meta property="og:description" content="In the the last part, we explored Wasm compilation, smart contracts in general, and testing on NEAR. We&rsquo;ve already written tests for our toy example of a blockchained &ldquo;Buy Me A Coffee&rdquo;, which is where we pick up this post.
+The methods Let us start the development with the impl block, as our testing already tells us which methods are needed:
+// We require `env` to interact with the rest of the NEAR world, and of course // the types as a &#34;language&#34; for these interactions.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://tifrel.github.io/posts/build-on-near-1.2/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2022-02-02T00:00:00+00:00">
+<meta property="article:modified_time" content="2022-02-02T00:00:00+00:00">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Build on NEAR: Our first smart contract (part 1.2)">
+<meta name=twitter:description content="In the the last part, we explored Wasm compilation, smart contracts in general, and testing on NEAR. We&rsquo;ve already written tests for our toy example of a blockchained &ldquo;Buy Me A Coffee&rdquo;, which is where we pick up this post.
+The methods Let us start the development with the impl block, as our testing already tells us which methods are needed:
+// We require `env` to interact with the rest of the NEAR world, and of course // the types as a &#34;language&#34; for these interactions.">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"http://tifrel.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Build on NEAR: Our first smart contract (part 1.2)","item":"http://tifrel.github.io/posts/build-on-near-1.2/"}]}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Build on NEAR: Our first smart contract (part 1.2)","name":"Build on NEAR: Our first smart contract (part 1.2)","description":"In the the last part, we explored Wasm compilation, smart contracts in general, and testing on NEAR. We\u0026rsquo;ve already written tests for our toy example of a blockchained \u0026ldquo;Buy Me A Coffee\u0026rdquo;, which is where we pick up this post.\nThe methods Let us start the development with the impl block, as our testing already tells us which methods are needed:\n// We require `env` to interact with the rest of the NEAR world, and of course // the types as a \u0026#34;language\u0026#34; for these interactions.","keywords":["Build on NEAR","Rust","NEAR protocol","Smart contracts"],"articleBody":"In the the last part, we explored Wasm compilation, smart contracts in general, and testing on NEAR. We’ve already written tests for our toy example of a blockchained “Buy Me A Coffee”, which is where we pick up this post.\nThe methods Let us start the development with the impl block, as our testing already tells us which methods are needed:\n// We require `env` to interact with the rest of the NEAR world, and of course // the types as a \"language\" for these interactions. use near_sdk::{env, near_bindgen, AccountId, Balance, Promise}; #[near_bindgen] impl BuyMeACoffee { // This is our bread and butter-method. It needs to be payable, because this  // that's the whole point of this \"Buy me a coffee\" thing.  #[payable] pub fn buy_coffee(\u0026mut self) - Promise { // Get call parameters  let account = env::predecessor_account_id(); let mut donation = env::attached_deposit(); // Update the donation amount for the caller  let old_donation = self.coffee_near_from.get(\u0026account).unwrap_or(0); donation += old_donation; self.coffee_near_from.insert(\u0026account, \u0026donation); // Check if we need to update our top donor  self.check_top_coffee_buyer(account, donation); // Finally, transact tokens to owner, but leave some for storage staking.  Promise::new(self.owner.clone()).transfer(donation / 100 * 95) } fn check_top_coffee_buyer(\u0026mut self, donor: AccountId, donation: Balance) { match self.top_coffee_buyer { // Yay, we someone just bought us coffee for the first time.  None = { self.top_coffee_buyer = Some((donor, donation)); } // Someone just outcompeted someone else in coffee donations for us.  Some((_, top_donation)) if top_donation  donation = { self.top_coffee_buyer = Some((donor, donation)); } // In any other cases, nothing to do  _ = {} } } // Get the donation amount for a specific account  pub fn coffee_near_from(\u0026self, account: AccountId) - Balance { self.coffee_near_from.get(\u0026account).unwrap_or(0) } // Get the account that donated most  pub fn top_coffee_buyer(\u0026self) - Option(AccountId, Balance) { self.top_coffee_buyer.clone() // clone required because of borrowing rules  } We do have a lot to unpack here, so let’s go over it, starting with method mutability.\nMethod mutability Maybe you’re coming from an EVM background and consider methods to be either mutable, view, or pure. You won’t need the background though to understand this tabular rundown of it:\n   Naming Rust signature What that means     mutable fn(\u0026mut self, ...) Anything can happen inside the method   view fn(\u0026self, ...) No state mutations, but state dependency   pure fn(...) (no self parameter, but inside an impl block) Independent on contract state    You should make sure not to mark methods as fn(\u0026mut self) if you don’t require to mutate state. Every mutable contract method will automatically rewrite the contract state when it terminates, thus costing extra gas. Luckily, the Rust compiler emits a warning when it encounters unnecessary mut modifiers.\nMethod visibility Since I assume you’re somewhat familiar with Rust, I also assume you’re familiar with visibility rules. They translate to NEAR smart contracts 1:1. A method marked as pub can be seen by the whole world, and it may be called by the whole world, specifically other NEAR accounts, and thus other contracts deployed on NEAR. If your method is not marked as pub, it can be seen and used from within the contract, but not elsewhere. We thus call them internal methods. There is however a third category that is not part of a standard Rust: #[private] methods. You are allowed to cross-contract call those from the same contract. As they need an interface to communicate with the outside world, being a cross-contract call after all, they will need to be pub. The signatures go as follows:\n   Naming Rust signature What that means     public pub fn Anyone can call   private #[private] pub fn This contract can call via cross-contract calls   internal fn This contract can call, but only from other methods    #[payable], environment, and promises The last bit we need to understand is #[payable], and the strings attached to it. A function that is marked as #[payable] accepts calls that have NEAR tokens attached to the call. Unlike gas fees, those tokens do not serve the purpose of paying for computation, but they behave like a transfer to the contract, with the method called being signalling the intent of the transfer. In our case, the intent is a simple donation. In other instances, you might wish to mint some tokens based on the amount of transferred NEAR, or simply require a minimum amount to pay for some service. To access these “meta-parameters”, we need functions from near_sdk::env:\n near_sdk::env::predecessor_account_id gives us the AccountId of whoever called the contract. AccountId is a type alias for String, but you can verify that it’s actually a valid NEAR account ID using near_sdk::env::is_valid_account_id. near_sdk::env::attached_deposit returns the Balance of NEAR (actually yoctoNEAR) with which the method was called. Balance is a type alias for u128.  Those are the methods we need for now, feel free to dig around in the docs and find other functions you’re interested in.\nThe last thing we need is a way to transfer native tokens from the contract. NEAR uses something called a Promise for that. You can actually think of promises as an instruction to the NEAR protocol to make things happen outside of your contract. While token transfer is the easiest example, these instructions may be cross-contract calls, account creation, or staking. Again, the docs will hold far more and more recent information.\nThe state and its initialization Now that we know how the functions inside our contract work, and which storage they rely on, it’s time to implement the contracts state:\nuse near_sdk::borsh::{self, BorshDeserialize, BorshSerialize}; // We need a map type and we cannot use `std`. Luckily NEAR SDK comes with // batteries included. use near_sdk::collections::UnorderedMap; // We require `env` to interact with the rest of the NEAR world, and of course // the types as a \"language\" for these interactions. use near_sdk::{near_bindgen, AccountId, Balance, PanicOnDefault}; // We obviously need to change the storage part of our contract. // Note how we can no longer derive `Default`, as it's not implemented for // `UnorderedMap`. Instead we use `PanicOnDefault`, which is required by NEAR // to signal that `Default` is not implemented for this contracts storage. // Our other options would be to talk the `initialize` method below, and use at // a custom implementation of `Default`. #[near_bindgen] #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)] pub struct BuyMeACoffee { owner: AccountId, coffee_near_from: UnorderedMapAccountId, Balance, top_coffee_buyer: Option(AccountId, Balance), } #[near_bindgen] impl BuyMeACoffee { // Because we no longer have an implementation for `Default` on our contract,  // we need to tell NEAR how to initialize it  #[init] pub fn initialize(owner: AccountId) - Self { // Assert that the AccountId of the provided owner is valid, or fail  // deployment  assert!(env::is_valid_account_id(owner.as_bytes())); Self { owner, // The text inside the call to `new` is a key prefix for the onchain  // storage key. It could just have been 0, but you should make a habit out  // of properly prefixing your storage items. This will help whenever you  // want to interact with raw onchain storage.  coffee_near_from: UnorderedMap::new(\"coffee.tifrel.testnet.map\".as_bytes()), top_coffee_buyer: None, } } } Let’s unravel this by field:\n owner is where the coffee donations go to. We want to set this once when we initialize the contract and never touch it again. The owner will be an AccountId, and we already learned how to verify those. It is a common practice to do all your checks (permissions, deposit requirements etc.) at the very start of your contract and fail early to avoid unnecessary gas costs. coffee_near_from tracks cumulative donations by AccountId. The natural type for this would be std::collections::HashMap, so why don’t we use that? We compile to WebAssembly, and a significant implication is the inavailability of std. More on that in the following paragraph. top_coffee_buyer is a pretty self-explanatory leaderboard with a single entry.  If you’ve just finished the Rust book, you might ask why would people want to give up on std? One reason is that std has things like TCP socket abstractions in it, and making these available on-chain brings with it the headache of the oracle problem on steroids, as you could e.g. have WebSockets connections inside smart contracts. But clearly, things like Vec and HashMap are base data structures and not having them sounds like a royal pain. It would be, if it wasn’t for near_sdk::collections. The module not only contains collection types to make our lives more liveable, but these data structures are optimized for the on-chain trie storage, which is quite different from your computers RAM, which the data structures in std::collections are optimized for. The contained Vector and LazyOption types are straight-forward to use and do not come with alternatives, so duplicating the docs here isn’t really worth it. We are interested in something akin to a HashMap, and there are three types on offer:\n LookupMap is the least powerful, but most efficient option. It allows you to look up values by key, but cannot be iterated. UnorderedMap allows you to iterate over keys and/or values, but doesn’t guarantee any order. TreeMap allows you to iterate over keys and/or values, ordered by the key.  We don’t need to iterate explicitly, but over the course of this series we will touch on storage migrations. For that we will need to iterate over all the entries, and we thus choose UnorderedMap to keep track of who donated how much NEAR to pay for coffee.\nTypes from near_sdk::collections come with another string attached: They don’t have Default implemented on them, thus we cannot derive it for our contract. While we could write our own implementation of Default, no parameters would be allowed. Remember that we want to set the owner of a contract while initializing? That’s why we have a custom initialize method on the contract, and require two attributes:\n #[init] fn initialize such that the function is available to call during deployment #[derive(PanicOnDefault)] struct BuyMeACoffee { ... }, where the naming is a bit misleading. We don’t care what happens if Default::default:: is called, because it is not implemented. Due to #[near_bindgen], we will however get a compiler error on the missing implementation of Default on BuyMeACoffee. Deriving PanicOnDefault simply tells NEAR that we explicitly opt out of using the Default trait, and thus allows us to compile the contract without this implementation.  As a sidenote, we should have probably implemented top_coffee_buyer as near_sdk::collections::LazyOption. To pretend at least some brevity, I will skip it here, but it is done that way in the actual implementation on GitHub.\nDeploying to testnet We finally arrive at the point where we can deploy the contract. Which we will do with our trusty NEAR CLI:\nwasm='target/wasm32-unknown-unknown/release/near_buy_me_a_coffee.wasm' near deploy --accountId coffee.tifrel.testnet --wasmFile \"$wasm\" \\  --initFunction initialize \\  --initArgs '{\"owner\": \"tifrel.testnet\"}' Starting deployment. Account id: coffee.tifrel.testnet, node: https://rpc.testnet.near.org, helper: https://helper.testnet.near.org, file: target/wasm32-unknown-unknown/release/near_buy_me_a_coffee.wasm Transaction Id 25g5CJxyMurDgsSSCuWndkhnuzGc2CPp322LC9hWCiUB To see the transaction in the transaction explorer, please open this url in your browser https://explorer.testnet.near.org/transactions/25g5CJxyMurDgsSSCuWndkhnuzGc2CPp322LC9hWCiUB Done deploying and initializing coffee.tifrel.testnet That’s it! The contract is on the chain, and all the world can interact with it. Let’s verify that by creating two subaccounts:\nnear create-account someone.tifrel.testnet \\  --masterAccount tifrel.testnet \\  --initialBalance 5 near create-account sometwo.tifrel.testnet \\  --masterAccount tifrel.testnet \\  --initialBalance 5 We can use these accounts for interacting with the contract:\nnear call coffee.tifrel.testnet buy_coffee '{}' \\  --accountId someone.tifrel.testnet \\  --deposit 1 Scheduling a call: coffee.tifrel.testnet.buy_coffee({}) with attached 1 NEAR Doing account.functionCall() Transaction Id 7bdK7tRpQUgMGBiYXkXixM4EPpsPqghRBm9kHyqdLJKp To see the transaction in the transaction explorer, please open this url in your browser https://explorer.testnet.near.org/transactions/7bdK7tRpQUgMGBiYXkXixM4EPpsPqghRBm9kHyqdLJKp And we can ue whichever account we want to verify that the mutations we wanted actually got recorded on-chain:\nnear view coffee.tifrel.testnet coffee_near_from '{\"account\": \"someone.tifrel.testnet\"}' --accountId tifrel.testnet View call: coffee.tifrel.testnet.coffee_near_from({\"account\": \"someone.tifrel.testnet\"}) 1e+24 near view coffee.tifrel.testnet top_coffee_buyer --accountId tifrel.testnet View call: coffee.tifrel.testnet.top_coffee_buyer() [ 'someone.tifrel.testnet', 1e+24 ] And if we do all this with the other created account, we will see top_coffee_buyer getting updated:\nnear call coffee.tifrel.testnet buy_coffee '{}' \\  --accountId sometwo.tifrel.testnet \\  --deposit 2 Scheduling a call: coffee.tifrel.testnet.buy_coffee({}) with attached 2 NEAR Doing account.functionCall() Transaction Id no99p6t2osKCGu1ZeFz7xc5J3TWAnfFNdhvKqbVnVVV To see the transaction in the transaction explorer, please open this url in your browser https://explorer.testnet.near.org/transactions/no99p6t2osKCGu1ZeFz7xc5J3TWAnfFNdhvKqbVnVVV '' near view coffee.tifrel.testnet coffee_near_from '{\"account\": \"sometwo.tifrel.testnet\"}' --accountId tifrel.testnet View call: coffee.tifrel.testnet.coffee_near_from({\"account\": \"sometwo.tifrel.testnet\"}) 2e+24 near view coffee.tifrel.testnet top_coffee_buyer --accountId tifrel.testnet View call: coffee.tifrel.testnet.top_coffee_buyer() [ 'sometwo.tifrel.testnet', 2e+24 ] Wrap-up As we did last time, we covered some significant ground today. We started knowing how to enforce the desired smart contracts logic, and we got to a point of understanding and applying the following concepts:\n Visibility and mutability of smart contract methods The blockchain environments and the types that define our interactions The inavailability of std and its implications Deploying to a live network and interacting with the contract  You could actually pick up from here doing some integration tests. That however, is a topic for another post.\n","wordCount":"2107","inLanguage":"en","datePublished":"2022-02-02T00:00:00Z","dateModified":"2022-02-02T00:00:00Z","author":{"@type":"Person","name":"Till"},"mainEntityOfPage":{"@type":"WebPage","@id":"http://tifrel.github.io/posts/build-on-near-1.2/"},"publisher":{"@type":"Organization","name":"Till's blog","logo":{"@type":"ImageObject","url":"http://tifrel.github.io/favicon.ico"}}}</script>
+</head>
+<body id=top>
+<script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add('dark'):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove('dark'):window.matchMedia('(prefers-color-scheme: dark)').matches&&document.body.classList.add('dark')</script>
+<header class=header>
+<nav class=nav>
+<div class=logo>
+<a href=http://tifrel.github.io/ accesskey=h title="Till's blog (Alt + H)">Till's blog</a>
+<span class=logo-switches>
+<button id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+</span>
+</div>
+<ul id=menu>
+<li>
+<a href=http://tifrel.github.io/tags title=Tags>
+<span>Tags</span>
+</a>
+</li>
+</ul>
+</nav>
+</header>
+<main class=main>
+<article class=post-single>
+<header class=post-header>
+<div class=breadcrumbs><a href=http://tifrel.github.io/>Home</a>&nbsp;»&nbsp;<a href=http://tifrel.github.io/posts/>Posts</a></div>
+<h1 class=post-title>
+Build on NEAR: Our first smart contract (part 1.2)
+</h1>
+<div class=post-meta><span title="2022-02-02 00:00:00 +0000 WET">2022-02-02</span>&nbsp;·&nbsp;Till
+</div>
+</header>
+<div class=post-content><p>In the <a href=../build-on-near-1.1>the last part</a>, we explored Wasm compilation,
+smart contracts in general, and testing on NEAR. We&rsquo;ve already written tests for
+our toy example of a blockchained &ldquo;Buy Me A Coffee&rdquo;, which is where we pick up
+this post.</p>
+<h2 id=the-methods>The methods<a hidden class=anchor aria-hidden=true href=#the-methods>#</a></h2>
+<p>Let us start the development with the <code>impl</code> block, as our testing already tells
+us which methods are needed:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rs data-lang=rs><span style=color:#75715e>// We require `env` to interact with the rest of the NEAR world, and of course
+</span><span style=color:#75715e>// the types as a &#34;language&#34; for these interactions.
+</span><span style=color:#75715e></span><span style=color:#66d9ef>use</span> near_sdk::{env, near_bindgen, AccountId, Balance, Promise};
+
+<span style=color:#75715e>#[near_bindgen]</span>
+<span style=color:#66d9ef>impl</span> BuyMeACoffee {
+  <span style=color:#75715e>// This is our bread and butter-method. It needs to be payable, because this
+</span><span style=color:#75715e></span>  <span style=color:#75715e>// that&#39;s the whole point of this &#34;Buy me a coffee&#34; thing.
+</span><span style=color:#75715e></span>  <span style=color:#75715e>#[payable]</span>
+  <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>buy_coffee</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self) -&gt; <span style=color:#a6e22e>Promise</span> {
+    <span style=color:#75715e>// Get call parameters
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>let</span> account <span style=color:#f92672>=</span> env::predecessor_account_id();
+    <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> donation <span style=color:#f92672>=</span> env::attached_deposit();
+
+    <span style=color:#75715e>// Update the donation amount for the caller
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>let</span> old_donation <span style=color:#f92672>=</span> self.coffee_near_from.get(<span style=color:#f92672>&amp;</span>account).unwrap_or(<span style=color:#ae81ff>0</span>);
+    donation <span style=color:#f92672>+=</span> old_donation;
+    self.coffee_near_from.insert(<span style=color:#f92672>&amp;</span>account, <span style=color:#f92672>&amp;</span>donation);
+
+    <span style=color:#75715e>// Check if we need to update our top donor
+</span><span style=color:#75715e></span>    self.check_top_coffee_buyer(account, donation);
+
+    <span style=color:#75715e>// Finally, transact tokens to owner, but leave some for storage staking.
+</span><span style=color:#75715e></span>    Promise::new(self.owner.clone()).transfer(donation <span style=color:#f92672>/</span> <span style=color:#ae81ff>100</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>95</span>)
+  }
+
+  <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>check_top_coffee_buyer</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, donor: <span style=color:#a6e22e>AccountId</span>, donation: <span style=color:#a6e22e>Balance</span>) {
+    <span style=color:#66d9ef>match</span> self.top_coffee_buyer {
+      <span style=color:#75715e>// Yay, we someone just bought us coffee for the first time.
+</span><span style=color:#75715e></span>      None <span style=color:#f92672>=&gt;</span> {
+        self.top_coffee_buyer <span style=color:#f92672>=</span> Some((donor, donation));
+      }
+      <span style=color:#75715e>// Someone just outcompeted someone else in coffee donations for us.
+</span><span style=color:#75715e></span>      Some((_, top_donation)) <span style=color:#66d9ef>if</span> top_donation <span style=color:#f92672>&lt;</span> donation <span style=color:#f92672>=&gt;</span> {
+        self.top_coffee_buyer <span style=color:#f92672>=</span> Some((donor, donation));
+      }
+      <span style=color:#75715e>// In any other cases, nothing to do
+</span><span style=color:#75715e></span>      _ <span style=color:#f92672>=&gt;</span> {}
+    }
+  }
+
+  <span style=color:#75715e>// Get the donation amount for a specific account
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>coffee_near_from</span>(<span style=color:#f92672>&amp;</span>self, account: <span style=color:#a6e22e>AccountId</span>) -&gt; <span style=color:#a6e22e>Balance</span> {
+    self.coffee_near_from.get(<span style=color:#f92672>&amp;</span>account).unwrap_or(<span style=color:#ae81ff>0</span>)
+  }
+
+  <span style=color:#75715e>// Get the account that donated most
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>top_coffee_buyer</span>(<span style=color:#f92672>&amp;</span>self) -&gt; Option<span style=color:#f92672>&lt;</span>(AccountId, Balance)<span style=color:#f92672>&gt;</span> {
+    self.top_coffee_buyer.clone() <span style=color:#75715e>// clone required because of borrowing rules
+</span><span style=color:#75715e></span>  }
+</code></pre></div><p>We do have a lot to unpack here, so let&rsquo;s go over it, starting with method
+mutability.</p>
+<h3 id=method-mutability>Method mutability<a hidden class=anchor aria-hidden=true href=#method-mutability>#</a></h3>
+<p>Maybe you&rsquo;re coming from an EVM background and consider methods to be either
+mutable, view, or pure. You won&rsquo;t need the background though to understand this
+tabular rundown of it:</p>
+<table>
+<thead>
+<tr>
+<th>Naming</th>
+<th>Rust signature</th>
+<th>What that means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mutable</td>
+<td><code>fn(&mut self, ...)</code></td>
+<td>Anything can happen inside the method</td>
+</tr>
+<tr>
+<td>view</td>
+<td><code>fn(&self, ...)</code></td>
+<td>No state mutations, but state dependency</td>
+</tr>
+<tr>
+<td>pure</td>
+<td><code>fn(...)</code> (no <code>self</code> parameter, but inside an <code>impl</code> block)</td>
+<td>Independent on contract state</td>
+</tr>
+</tbody>
+</table>
+<p>You should make sure not to mark methods as <code>fn(&mut self)</code> if you don&rsquo;t require
+to mutate state. Every mutable contract method will automatically rewrite the
+contract state when it terminates, thus costing extra gas. Luckily, the Rust
+compiler emits a warning when it encounters unnecessary <code>mut</code> modifiers.</p>
+<h3 id=method-visibility>Method visibility<a hidden class=anchor aria-hidden=true href=#method-visibility>#</a></h3>
+<p>Since I assume you&rsquo;re somewhat familiar with Rust, I also assume you&rsquo;re familiar
+with visibility rules. They translate to NEAR smart contracts 1:1. A method
+marked as <code>pub</code> can be seen by the whole world, and it may be called by the
+whole world, specifically other NEAR accounts, and thus other contracts deployed
+on NEAR. If your method is not marked as <code>pub</code>, it can be seen and used from
+within the contract, but not elsewhere. We thus call them internal methods.
+There is however a third category that is not part of a standard Rust:
+<code>#[private]</code> methods. You are allowed to cross-contract call those from the same
+contract. As they need an interface to communicate with the outside world, being
+a cross-contract call after all, they will need to be <code>pub</code>. The signatures go
+as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Naming</th>
+<th>Rust signature</th>
+<th>What that means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>public</td>
+<td><code>pub fn</code></td>
+<td>Anyone can call</td>
+</tr>
+<tr>
+<td>private</td>
+<td><code>#[private] pub fn</code></td>
+<td>This contract can call via cross-contract calls</td>
+</tr>
+<tr>
+<td>internal</td>
+<td><code>fn</code></td>
+<td>This contract can call, but only from other methods</td>
+</tr>
+</tbody>
+</table>
+<h3 id=payable-environment-and-promises><code>#[payable]</code>, environment, and promises<a hidden class=anchor aria-hidden=true href=#payable-environment-and-promises>#</a></h3>
+<p>The last bit we need to understand is <code>#[payable]</code>, and the strings attached to
+it. A function that is marked as <code>#[payable]</code> accepts calls that have NEAR
+tokens attached to the call. Unlike gas fees, those tokens do not serve the
+purpose of paying for computation, but they behave like a transfer to the
+contract, with the method called being signalling the intent of the transfer. In
+our case, the intent is a simple donation. In other instances, you might wish to
+mint some tokens based on the amount of transferred NEAR, or simply require a
+minimum amount to pay for some service. To access these &ldquo;meta-parameters&rdquo;, we
+need functions from <code>near_sdk::env</code>:</p>
+<ul>
+<li><code>near_sdk::env::predecessor_account_id</code> gives us the <code>AccountId</code> of whoever
+called the contract. <code>AccountId</code> is a type alias for <code>String</code>, but you can
+verify that it&rsquo;s actually a valid NEAR account ID using
+<code>near_sdk::env::is_valid_account_id</code>.</li>
+<li><code>near_sdk::env::attached_deposit</code> returns the <code>Balance</code> of NEAR (actually
+yoctoNEAR) with which the method was called. <code>Balance</code> is a type alias for
+<code>u128</code>.</li>
+</ul>
+<p>Those are the methods we need for now, feel free to dig around in
+<a href=https://docs.rs/near-sdk/latest/near_sdk/env/index.html>the docs</a> and find
+other functions you&rsquo;re interested in.</p>
+<p>The last thing we need is a way to transfer native tokens from the contract.
+NEAR uses something called a <code>Promise</code> for that. You can actually think of
+promises as an instruction to the NEAR protocol to make things happen outside of
+your contract. While token transfer is the easiest example, these instructions
+may be cross-contract calls, account creation, or staking. Again,
+<a href=https://docs.rs/near-sdk/latest/near_sdk/struct.Promise.html>the docs</a> will
+hold far more and more recent information.</p>
+<h2 id=the-state-and-its-initialization>The state and its initialization<a hidden class=anchor aria-hidden=true href=#the-state-and-its-initialization>#</a></h2>
+<p>Now that we know how the functions inside our contract work, and which storage
+they rely on, it&rsquo;s time to implement the contracts state:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rs data-lang=rs><span style=color:#66d9ef>use</span> near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+<span style=color:#75715e>// We need a map type and we cannot use `std`. Luckily NEAR SDK comes with
+</span><span style=color:#75715e>// batteries included.
+</span><span style=color:#75715e></span><span style=color:#66d9ef>use</span> near_sdk::collections::UnorderedMap;
+<span style=color:#75715e>// We require `env` to interact with the rest of the NEAR world, and of course
+</span><span style=color:#75715e>// the types as a &#34;language&#34; for these interactions.
+</span><span style=color:#75715e></span><span style=color:#66d9ef>use</span> near_sdk::{near_bindgen, AccountId, Balance, PanicOnDefault};
+
+<span style=color:#75715e>// We obviously need to change the storage part of our contract.
+</span><span style=color:#75715e>// Note how we can no longer derive `Default`, as it&#39;s not implemented for
+</span><span style=color:#75715e>// `UnorderedMap`. Instead we use `PanicOnDefault`, which is required by NEAR
+</span><span style=color:#75715e>// to signal that `Default` is not implemented for this contracts storage.
+</span><span style=color:#75715e>// Our other options would be to talk the `initialize` method below, and use at
+</span><span style=color:#75715e>// a custom implementation of `Default`.
+</span><span style=color:#75715e></span><span style=color:#75715e>#[near_bindgen]</span>
+<span style=color:#75715e>#[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]</span>
+<span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>BuyMeACoffee</span> {
+  owner: <span style=color:#a6e22e>AccountId</span>,
+  coffee_near_from: <span style=color:#a6e22e>UnorderedMap</span><span style=color:#f92672>&lt;</span>AccountId, Balance<span style=color:#f92672>&gt;</span>,
+  top_coffee_buyer: Option<span style=color:#f92672>&lt;</span>(AccountId, Balance)<span style=color:#f92672>&gt;</span>,
+}
+
+<span style=color:#75715e>#[near_bindgen]</span>
+<span style=color:#66d9ef>impl</span> BuyMeACoffee {
+  <span style=color:#75715e>// Because we no longer have an implementation for `Default` on our contract,
+</span><span style=color:#75715e></span>  <span style=color:#75715e>// we need to tell NEAR how to initialize it
+</span><span style=color:#75715e></span>  <span style=color:#75715e>#[init]</span>
+  <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>initialize</span>(owner: <span style=color:#a6e22e>AccountId</span>) -&gt; <span style=color:#a6e22e>Self</span> {
+    <span style=color:#75715e>// Assert that the AccountId of the provided owner is valid, or fail
+</span><span style=color:#75715e></span>    <span style=color:#75715e>// deployment
+</span><span style=color:#75715e></span>    assert!(env::is_valid_account_id(owner.as_bytes()));
+
+    Self {
+      owner,
+      <span style=color:#75715e>// The text inside the call to `new` is a key prefix for the onchain
+</span><span style=color:#75715e></span>      <span style=color:#75715e>// storage key. It could just have been 0, but you should make a habit out
+</span><span style=color:#75715e></span>      <span style=color:#75715e>// of properly prefixing your storage items. This will help whenever you
+</span><span style=color:#75715e></span>      <span style=color:#75715e>// want to interact with raw onchain storage.
+</span><span style=color:#75715e></span>      coffee_near_from: <span style=color:#a6e22e>UnorderedMap</span>::new(<span style=color:#e6db74>&#34;coffee.tifrel.testnet.map&#34;</span>.as_bytes()),
+      top_coffee_buyer: None,
+    }
+  }
+}
+</code></pre></div><p>Let&rsquo;s unravel this by field:</p>
+<ul>
+<li><code>owner</code> is where the coffee donations go to. We want to set this once when we
+initialize the contract and never touch it again. The <code>owner</code> will be an
+<code>AccountId</code>, and we already learned how to verify those. It is a common
+practice to do all your checks (permissions, deposit requirements etc.) at the
+very start of your contract and fail early to avoid unnecessary gas costs.</li>
+<li><code>coffee_near_from</code> tracks cumulative donations by <code>AccountId</code>. The natural
+type for this would be <code>std::collections::HashMap</code>, so why don&rsquo;t we use that?
+We compile to WebAssembly, and a significant implication is the inavailability
+of <code>std</code>. More on that in the following paragraph.</li>
+<li><code>top_coffee_buyer</code> is a pretty self-explanatory leaderboard with a single
+entry.</li>
+</ul>
+<p>If you&rsquo;ve just finished <a href=https://doc.rust-lang.org/stable/book/>the Rust book</a>,
+you might ask why would people want to give up on <code>std</code>? One reason is that
+<code>std</code> has things like TCP socket abstractions in it, and making these available
+on-chain brings with it the headache of
+<a href=https://blog.chain.link/what-is-the-blockchain-oracle-problem/>the oracle problem</a>
+on steroids, as you could e.g. have WebSockets connections inside smart
+contracts. But clearly, things like <code>Vec</code> and <code>HashMap</code> are base data structures
+and not having them sounds like a royal pain. It would be, if it wasn&rsquo;t for
+<a href=https://docs.rs/near-sdk/latest/near_sdk/collections/index.html><code>near_sdk::collections</code></a>.
+The module not only contains collection types to make our lives more liveable,
+but these data structures are optimized for the on-chain trie storage, which is
+quite different from your computers RAM, which the data structures in
+<code>std::collections</code> are optimized for. The contained <code>Vector</code> and <code>LazyOption</code>
+types are straight-forward to use and do not come with alternatives, so
+duplicating the docs here isn&rsquo;t really worth it. We are interested in something
+akin to a <code>HashMap</code>, and there are three types on offer:</p>
+<ul>
+<li><code>LookupMap</code> is the least powerful, but most efficient option. It allows you to
+look up values by key, but cannot be iterated.</li>
+<li><code>UnorderedMap</code> allows you to iterate over keys and/or values, but doesn&rsquo;t
+guarantee any order.</li>
+<li><code>TreeMap</code> allows you to iterate over keys and/or values, ordered by the key.</li>
+</ul>
+<p>We don&rsquo;t need to iterate explicitly, but over the course of this series we will
+touch on storage migrations. For that we will need to iterate over all the
+entries, and we thus choose <code>UnorderedMap</code> to keep track of who donated how much
+NEAR to pay for coffee.</p>
+<p>Types from <code>near_sdk::collections</code> come with another string attached: They don&rsquo;t
+have <code>Default</code> implemented on them, thus we cannot derive it for our contract.
+While we could write our own implementation of <code>Default</code>, no parameters would be
+allowed. Remember that we want to set the <code>owner</code> of a contract while
+initializing? That&rsquo;s why we have a custom <code>initialize</code> method on the contract,
+and require two attributes:</p>
+<ul>
+<li><code>#[init] fn initialize</code> such that the function is available to call during
+deployment</li>
+<li><code>#[derive(PanicOnDefault)] struct BuyMeACoffee { ... }</code>, where the naming is a
+bit misleading. We don&rsquo;t care what happens if
+<code>Default::default::&lt;BuyMeACoffee></code> is called, because it is not implemented.
+Due to <code>#[near_bindgen]</code>, we will however get a compiler error on the missing
+implementation of <code>Default</code> on <code>BuyMeACoffee</code>. Deriving <code>PanicOnDefault</code>
+simply tells NEAR that we explicitly opt out of using the <code>Default</code> trait, and
+thus allows us to compile the contract without this implementation.</li>
+</ul>
+<p>As a sidenote, we should have probably implemented <code>top_coffee_buyer</code> as
+<code>near_sdk::collections::LazyOption</code>. To pretend at least some brevity, I will
+skip it here, but it is done that way in the
+<a href=https://github.com/tifrel/build-on-near/commit/dce408d7c522c755d746e3c85ee7d2344e679fc3>actual implementation on GitHub</a>.</p>
+<h2 id=deploying-to-testnet>Deploying to testnet<a hidden class=anchor aria-hidden=true href=#deploying-to-testnet>#</a></h2>
+<p>We finally arrive at the point where we can deploy the contract. Which we will
+do with our trusty NEAR CLI:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>wasm<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;target/wasm32-unknown-unknown/release/near_buy_me_a_coffee.wasm&#39;</span>
+near deploy --accountId coffee.tifrel.testnet --wasmFile <span style=color:#e6db74>&#34;</span>$wasm<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --initFunction initialize <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --initArgs <span style=color:#e6db74>&#39;{&#34;owner&#34;: &#34;tifrel.testnet&#34;}&#39;</span>
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>Starting deployment. Account id: coffee.tifrel.testnet, node: https://rpc.testnet.near.org, helper: https://helper.testnet.near.org, file: target/wasm32-unknown-unknown/release/near_buy_me_a_coffee.wasm
+Transaction Id 25g5CJxyMurDgsSSCuWndkhnuzGc2CPp322LC9hWCiUB
+To see the transaction in the transaction explorer, please open this url in your browser
+https://explorer.testnet.near.org/transactions/25g5CJxyMurDgsSSCuWndkhnuzGc2CPp322LC9hWCiUB
+Done deploying and initializing coffee.tifrel.testnet
+</code></pre></div><p>That&rsquo;s it! The contract is on the chain, and all the world can interact with it.
+Let&rsquo;s verify that by creating two subaccounts:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near create-account someone.tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --masterAccount tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --initialBalance <span style=color:#ae81ff>5</span>
+
+near create-account sometwo.tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --masterAccount tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --initialBalance <span style=color:#ae81ff>5</span>
+</code></pre></div><p>We can use these accounts for interacting with the contract:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near call coffee.tifrel.testnet buy_coffee <span style=color:#e6db74>&#39;{}&#39;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --accountId someone.tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --deposit <span style=color:#ae81ff>1</span>
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>Scheduling a call: coffee.tifrel.testnet.buy_coffee({}) with attached 1 NEAR
+Doing account.functionCall()
+Transaction Id 7bdK7tRpQUgMGBiYXkXixM4EPpsPqghRBm9kHyqdLJKp
+To see the transaction in the transaction explorer, please open this url in your browser
+https://explorer.testnet.near.org/transactions/7bdK7tRpQUgMGBiYXkXixM4EPpsPqghRBm9kHyqdLJKp
+</code></pre></div><p>And we can ue whichever account we want to verify that the mutations we wanted
+actually got recorded on-chain:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near view coffee.tifrel.testnet coffee_near_from <span style=color:#e6db74>&#39;{&#34;account&#34;: &#34;someone.tifrel.testnet&#34;}&#39;</span> --accountId tifrel.testnet
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>View call: coffee.tifrel.testnet.coffee_near_from({&#34;account&#34;: &#34;someone.tifrel.testnet&#34;})
+1e+24
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near view coffee.tifrel.testnet top_coffee_buyer --accountId tifrel.testnet
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>View call: coffee.tifrel.testnet.top_coffee_buyer()
+[ &#39;someone.tifrel.testnet&#39;, 1e+24 ]
+</code></pre></div><p>And if we do all this with the other created account, we will see
+<code>top_coffee_buyer</code> getting updated:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near call coffee.tifrel.testnet buy_coffee <span style=color:#e6db74>&#39;{}&#39;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --accountId sometwo.tifrel.testnet <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --deposit <span style=color:#ae81ff>2</span>
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>Scheduling a call: coffee.tifrel.testnet.buy_coffee({}) with attached 2 NEAR
+Doing account.functionCall()
+Transaction Id no99p6t2osKCGu1ZeFz7xc5J3TWAnfFNdhvKqbVnVVV
+To see the transaction in the transaction explorer, please open this url in your browser
+https://explorer.testnet.near.org/transactions/no99p6t2osKCGu1ZeFz7xc5J3TWAnfFNdhvKqbVnVVV
+&#39;&#39;
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near view coffee.tifrel.testnet coffee_near_from <span style=color:#e6db74>&#39;{&#34;account&#34;: &#34;sometwo.tifrel.testnet&#34;}&#39;</span> --accountId tifrel.testnet
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>View call: coffee.tifrel.testnet.coffee_near_from({&#34;account&#34;: &#34;sometwo.tifrel.testnet&#34;})
+2e+24
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>near view coffee.tifrel.testnet top_coffee_buyer --accountId tifrel.testnet
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plain data-lang=plain>View call: coffee.tifrel.testnet.top_coffee_buyer()
+[ &#39;sometwo.tifrel.testnet&#39;, 2e+24 ]
+</code></pre></div><h2 id=wrap-up>Wrap-up<a hidden class=anchor aria-hidden=true href=#wrap-up>#</a></h2>
+<p>As we did last time, we covered some significant ground today. We started
+knowing how to enforce the desired smart contracts logic, and we got to a point
+of understanding and applying the following concepts:</p>
+<ul>
+<li>Visibility and mutability of smart contract methods</li>
+<li>The blockchain environments and the types that define our interactions</li>
+<li>The inavailability of <code>std</code> and its implications</li>
+<li>Deploying to a live network and interacting with the contract</li>
+</ul>
+<p>You could actually pick up from here doing some integration tests. That however,
+is a topic for another post.</p>
+</div>
+<footer class=post-footer>
+<ul class=post-tags>
+<li><a href=http://tifrel.github.io/tags/build-on-near/>Build on NEAR</a></li>
+<li><a href=http://tifrel.github.io/tags/rust/>Rust</a></li>
+<li><a href=http://tifrel.github.io/tags/near-protocol/>NEAR protocol</a></li>
+<li><a href=http://tifrel.github.io/tags/smart-contracts/>Smart contracts</a></li>
+</ul>
+<nav class=paginav>
+<a class=prev href=http://tifrel.github.io/posts/hello-world/>
+<span class=title>« Prev Page</span>
+<br>
+<span>Hello, World!</span>
+</a>
+<a class=next href=http://tifrel.github.io/posts/build-on-near-1.1/>
+<span class=title>Next Page »</span>
+<br>
+<span>Build on NEAR: Our first smart contract (part 1.1)</span>
+</a>
+</nav>
+<div class=share-buttons>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on twitter" href="https://twitter.com/intent/tweet/?text=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29&url=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f&hashtags=BuildonNEAR%2cRust%2cNEARprotocol%2cSmartcontracts"><svg viewBox="0 0 512 512"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM195.519 424.544c135.939.0 210.268-112.643 210.268-210.268.0-3.218.0-6.437-.153-9.502 14.406-10.421 26.973-23.448 36.935-38.314-13.18 5.824-27.433 9.809-42.452 11.648 15.326-9.196 26.973-23.602 32.49-40.92-14.252 8.429-30.038 14.56-46.896 17.931-13.487-14.406-32.644-23.295-53.946-23.295-40.767.0-73.87 33.104-73.87 73.87.0 5.824.613 11.494 1.992 16.858-61.456-3.065-115.862-32.49-152.337-77.241-6.284 10.881-9.962 23.601-9.962 37.088.0 25.594 13.027 48.276 32.95 61.456-12.107-.307-23.448-3.678-33.41-9.196v.92c0 35.862 25.441 65.594 59.311 72.49-6.13 1.686-12.72 2.606-19.464 2.606-4.751.0-9.348-.46-13.946-1.38 9.349 29.426 36.628 50.728 68.965 51.341-25.287 19.771-57.164 31.571-91.8 31.571-5.977.0-11.801-.306-17.625-1.073 32.337 21.15 71.264 33.41 112.95 33.41z"/></svg>
+</a>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f&title=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29&summary=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29&source=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f"><svg viewBox="0 0 512 512"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM160.461 423.278V197.561h-75.04v225.717h75.04zm270.539.0V293.839c0-69.333-37.018-101.586-86.381-101.586-39.804.0-57.634 21.891-67.617 37.266v-31.958h-75.021c.995 21.181.0 225.717.0 225.717h75.02V297.222c0-6.748.486-13.492 2.474-18.315 5.414-13.475 17.767-27.434 38.494-27.434 27.135.0 38.007 20.707 38.007 51.037v120.768H431zM123.448 88.722C97.774 88.722 81 105.601 81 127.724c0 21.658 16.264 39.002 41.455 39.002h.484c26.165.0 42.452-17.344 42.452-39.002-.485-22.092-16.241-38.954-41.943-39.002z"/></svg>
+</a>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on reddit" href="https://reddit.com/submit?url=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f&title=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29"><svg viewBox="0 0 512 512"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM446 265.638c0-22.964-18.616-41.58-41.58-41.58-11.211.0-21.361 4.457-28.841 11.666-28.424-20.508-67.586-33.757-111.204-35.278l18.941-89.121 61.884 13.157c.756 15.734 13.642 28.29 29.56 28.29 16.407.0 29.706-13.299 29.706-29.701.0-16.403-13.299-29.702-29.706-29.702-11.666.0-21.657 6.792-26.515 16.578l-69.105-14.69c-1.922-.418-3.939-.042-5.585 1.036-1.658 1.073-2.811 2.761-3.224 4.686l-21.152 99.438c-44.258 1.228-84.046 14.494-112.837 35.232-7.468-7.164-17.589-11.591-28.757-11.591-22.965.0-41.585 18.616-41.585 41.58.0 16.896 10.095 31.41 24.568 37.918-.639 4.135-.99 8.328-.99 12.576.0 63.977 74.469 115.836 166.33 115.836s166.334-51.859 166.334-115.836c0-4.218-.347-8.387-.977-12.493 14.564-6.47 24.735-21.034 24.735-38.001zM326.526 373.831c-20.27 20.241-59.115 21.816-70.534 21.816-11.428.0-50.277-1.575-70.522-21.82-3.007-3.008-3.007-7.882.0-10.889 3.003-2.999 7.882-3.003 10.885.0 12.777 12.781 40.11 17.317 59.637 17.317 19.522.0 46.86-4.536 59.657-17.321 3.016-2.999 7.886-2.995 10.885.008 3.008 3.011 3.003 7.882-.008 10.889zm-5.23-48.781c-16.373.0-29.701-13.324-29.701-29.698.0-16.381 13.328-29.714 29.701-29.714 16.378.0 29.706 13.333 29.706 29.714.0 16.374-13.328 29.698-29.706 29.698zM160.91 295.348c0-16.381 13.328-29.71 29.714-29.71 16.369.0 29.689 13.329 29.689 29.71.0 16.373-13.32 29.693-29.689 29.693-16.386.0-29.714-13.32-29.714-29.693z"/></svg>
+</a>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on facebook" href="https://facebook.com/sharer/sharer.php?u=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f"><svg viewBox="0 0 512 512"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H342.978V319.085h66.6l12.672-82.621h-79.272v-53.617c0-22.603 11.073-44.636 46.58-44.636H425.6v-70.34s-32.71-5.582-63.982-5.582c-65.288.0-107.96 39.569-107.96 111.204v62.971h-72.573v82.621h72.573V512h-191.104c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892z"/></svg>
+</a>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on whatsapp" href="https://api.whatsapp.com/send?text=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29%20-%20http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f"><svg viewBox="0 0 512 512"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zm-58.673 127.703c-33.842-33.881-78.847-52.548-126.798-52.568-98.799.0-179.21 80.405-179.249 179.234-.013 31.593 8.241 62.428 23.927 89.612l-25.429 92.884 95.021-24.925c26.181 14.28 55.659 21.807 85.658 21.816h.074c98.789.0 179.206-80.413 179.247-179.243.018-47.895-18.61-92.93-52.451-126.81zM263.976 403.485h-.06c-26.734-.01-52.954-7.193-75.828-20.767l-5.441-3.229-56.386 14.792 15.05-54.977-3.542-5.637c-14.913-23.72-22.791-51.136-22.779-79.287.033-82.142 66.867-148.971 149.046-148.971 39.793.014 77.199 15.531 105.329 43.692 28.128 28.16 43.609 65.592 43.594 105.4-.034 82.149-66.866 148.983-148.983 148.984zm81.721-111.581c-4.479-2.242-26.499-13.075-30.604-14.571-4.105-1.495-7.091-2.241-10.077 2.241-2.986 4.483-11.569 14.572-14.182 17.562-2.612 2.988-5.225 3.364-9.703 1.12-4.479-2.241-18.91-6.97-36.017-22.23C231.8 264.15 222.81 249.484 220.198 245s-.279-6.908 1.963-9.14c2.016-2.007 4.48-5.232 6.719-7.847 2.24-2.615 2.986-4.484 4.479-7.472 1.493-2.99.747-5.604-.374-7.846-1.119-2.241-10.077-24.288-13.809-33.256-3.635-8.733-7.327-7.55-10.077-7.688-2.609-.13-5.598-.158-8.583-.158-2.986.0-7.839 1.121-11.944 5.604-4.105 4.484-15.675 15.32-15.675 37.364.0 22.046 16.048 43.342 18.287 46.332 2.24 2.99 31.582 48.227 76.511 67.627 10.685 4.615 19.028 7.371 25.533 9.434 10.728 3.41 20.492 2.929 28.209 1.775 8.605-1.285 26.499-10.833 30.231-21.295 3.732-10.464 3.732-19.431 2.612-21.298-1.119-1.869-4.105-2.99-8.583-5.232z"/></svg>
+</a>
+<a target=_blank rel="noopener noreferrer" aria-label="share Build on NEAR: Our first smart contract (part 1.2) on telegram" href="https://telegram.me/share/url?text=Build%20on%20NEAR%3a%20Our%20first%20smart%20contract%20%28part%201.2%29&url=http%3a%2f%2ftifrel.github.io%2fposts%2fbuild-on-near-1.2%2f"><svg viewBox="2 2 28 28"><path d="M26.49 29.86H5.5a3.37 3.37.0 01-2.47-1 3.35 3.35.0 01-1-2.47V5.48A3.36 3.36.0 013 3 3.37 3.37.0 015.5 2h21A3.38 3.38.0 0129 3a3.36 3.36.0 011 2.46V26.37a3.35 3.35.0 01-1 2.47 3.38 3.38.0 01-2.51 1.02zm-5.38-6.71a.79.79.0 00.85-.66L24.73 9.24a.55.55.0 00-.18-.46.62.62.0 00-.41-.17q-.08.0-16.53 6.11a.59.59.0 00-.41.59.57.57.0 00.43.52l4 1.24 1.61 4.83a.62.62.0 00.63.43.56.56.0 00.4-.17L16.54 20l4.09 3A.9.9.0 0021.11 23.15zM13.8 20.71l-1.21-4q8.72-5.55 8.78-5.55c.15.0.23.0.23.16a.18.18.0 010 .06s-2.51 2.3-7.52 6.8z"/></svg>
+</a>
+</div>
+</footer>
+</article>
+</main>
+<footer class=footer>
+<span>&copy; 2022 <a href=http://tifrel.github.io/>Till's blog</a></span>
+<span>
+Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://git.io/hugopapermod rel=noopener target=_blank>PaperMod</a>
+</span>
+</footer>
+<a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a>
+<script>let menu=document.getElementById('menu');menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(b){b.preventDefault();var a=this.getAttribute("href").substr(1);window.matchMedia('(prefers-reduced-motion: reduce)').matches?document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView({behavior:"smooth"}),a==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${a}`)})})</script>
+<script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script>
+<script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove('dark'),localStorage.setItem("pref-theme",'light')):(document.body.classList.add('dark'),localStorage.setItem("pref-theme",'dark'))})</script>
+<script>document.querySelectorAll('pre > code').forEach(b=>{const c=b.parentNode.parentNode,a=document.createElement('button');a.classList.add('copy-code'),a.innerText='copy';function d(){a.innerText='copied!',setTimeout(()=>{a.innerText='copy'},2e3)}a.addEventListener('click',e=>{if('clipboard'in navigator){navigator.clipboard.writeText(b.textContent),d();return}const a=document.createRange();a.selectNodeContents(b);const c=window.getSelection();c.removeAllRanges(),c.addRange(a);try{document.execCommand('copy'),d()}catch(a){}c.removeRange(a)}),c.classList.contains("highlight")?c.appendChild(a):c.parentNode.firstChild==c||(b.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?b.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(a):b.parentNode.appendChild(a))})</script>
+</body>
+</html>
