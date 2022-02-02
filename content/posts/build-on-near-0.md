@@ -62,8 +62,8 @@ One way to interact with the NEAR network is the
 [NEAR CLI](https://github.com/near/near-cli), which can be installed using NPM:
 
 ```sh
-$ sudo npm i -g near-cli
-$ near --version
+sudo npm i -g near-cli
+near --version
 ```
 
 To locally save your account credentials, issue `near login`, and follow the
@@ -103,12 +103,21 @@ possibility to publicly express that these contracts may be related. Let's try
 it:
 
 ```sh
-$ near create-account coffee.tifrel.testnet \
+near create-account coffee.tifrel.testnet \
   --masterAccount tifrel.testnet \
   --initialBalance 10
+```
+
+```plain
 Saving key to '~/.near-credentials/testnet/coffee.tifrel.testnet.json'
 Account coffee.tifrel.testnet for network "testnet" was created.
-$ near state coffee.tifrel.testnet
+```
+
+```sh
+near state coffee.tifrel.testnet
+```
+
+```
 Account coffee.tifrel.testnet
 {
   amount: '10000000000000000000000000',
@@ -144,5 +153,6 @@ use this command to fund your new account with the existential deposit.
 ## Wrap-up
 
 To kick off our NEAR journey, we got ourselves an account and learned to
-interact with the NEAR testnet using the NEAR CLI. The next post will get us
-into writing our first smart contract.
+interact with the NEAR testnet using the NEAR CLI. The
+[next post](../build-on-near-1) will get us into writing our first smart
+contract.

@@ -6,6 +6,7 @@ if [[ -z "$commit_msg" ]]; then
   exit 1
 fi
 
+rm -rf ./public/*
 hugo --minify || exit 1
 
 git add .
