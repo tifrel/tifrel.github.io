@@ -161,7 +161,8 @@ Looking at it with an editor should give you a bunch of funny symbols. It's some
 kind of machine code after all, so if it's not human-readable, that's a good
 sign.
 
-<!-- TODO: Find the [code on github](https://github.com/tifrel/build-on-near/tree/3625f1cc7bfc2c6935f4f7e3d2d0eaa3ccc81ebc) -->
+Find the
+[code on github](https://github.com/tifrel/build-on-near/tree/3625f1cc7bfc2c6935f4f7e3d2d0eaa3ccc81ebc)
 
 ## Adding NEAR
 
@@ -249,7 +250,8 @@ holds information like the calling account of a contracts methods, NEAR tokens
 attached to the call, or block information. A context will be used for all
 subsequent function calls, until it is set again.
 
-<!-- TODO: Find the [code on github](https://github.com/tifrel/build-on-near/tree/d35994ccfc5a5ebf2afbe147d4a71ec0448c9a65) -->
+Find the
+[code on github](https://github.com/tifrel/build-on-near/tree/d35994ccfc5a5ebf2afbe147d4a71ec0448c9a65)
 
 ## Writing tests for our actual contract
 

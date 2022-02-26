@@ -20,10 +20,11 @@ it's necessary. Following topics will be covered:
    should have a look at the NEAR CLI tool (this post)
 1. Building smart contracts, testing them, and deploying them to a testing
    network
+   1. [Basics and testing](../build-on-near-1.1)
+   2. [In-depth and deployment](../build-on-near-1.2)
 2. Integration testing, storage migration, redeployments
 3. Gas costs and profiling, cross-contract calling, simulation testing, mainnet
 4. Indexing, testing the indexer, storage migrations and indexing
-5. Smart contracts standards for the NEAR ecosystem
 
 Let's kickstart this series by getting you a NEAR account.
 

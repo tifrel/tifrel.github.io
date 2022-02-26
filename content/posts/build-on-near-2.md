@@ -154,8 +154,8 @@ This already encompasses the bash script we used last time to test our contract.
 Even better, it runs locally, so you don't have to deal with polluted state as
 you do on testnet. Try it out by running `npm test`!
 
-<!-- TODO: As usual, you can
-[browse the implementation on GitHub](https://github.com/tifrel/build-on-near/tree/a652891a7205f9030d215fbce54c4a620cbf6218). -->
+As usual, you can
+[browse the implementation on GitHub](https://github.com/tifrel/build-on-near/tree/edde891f1d2ee56959f31d950046d2632ef78b05).
 
 ## Storage migration
 
@@ -306,10 +306,9 @@ workspace.test(
 ```
 <!-- prettier-ignore-end -->
 
-<!-- TODO:
-[I've linked the commit](https://github.com/tifrel/build-on-near/tree/828445c7a009e969f30178bea8ac942c1f0f6f64),
+[I've linked the commit](https://github.com/tifrel/build-on-near/tree/612c661b6d37c48f2f1b174fb1dbb5cda885f397),
 where you can not only find the tested migration, but also the implementation of
-the refined `BuyMeACoffee` contract. -->
+the refined `BuyMeACoffee` contract.
 
 And that's all there is to it. We can now call the contract upgrade on testnet
 with high confidence that we won't corrupt the state:
@@ -343,7 +342,14 @@ null
 The fact that we got an uncorrupted response from viewing `top_coffee_buyer` and
 no panic from `top_coffee_bought` suffices for me to call our upgrade a success.
 
-<!-- TODO: upgrade on testnet via NEAR CLI + test -->
+The
+[NEAR SDK docs](https://www.near-sdk.io/upgrading/production-basics#using-enums)
+propose using enums for upgrading. Out of brevity, we will skip this strategy
+here, but you should be aware of it. While the enum method seems more
+higher-level, and thus more maintainable to me, it brings with it extra overhead
+of nesting, both for a code maintainer and for the contract size. As I value
+performance and simplicitly, I will probably prefer the barebones state
+migration without using an enum to keep track of versioning.
 
 ## Wrap-up
 

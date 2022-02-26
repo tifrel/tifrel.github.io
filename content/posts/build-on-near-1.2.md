@@ -153,9 +153,9 @@ they rely on, it's time to implement the contracts state:
 
 ```rs
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-// We need a map type and we cannot use `std`. Luckily NEAR SDK comes with
-// batteries included.
-use near_sdk::collections::UnorderedMap;
+// We need a map type and we shouldn't use `std` for on-chain storage, so we use
+// a map type provided by `near_sdk`
+use near_sdk::collections::{UnorderedMap, LazyOption};
 // We require `env` to interact with the rest of the NEAR world, and of course
 // the types as a "language" for these interactions.
 use near_sdk::{near_bindgen, AccountId, Balance, PanicOnDefault};
@@ -171,7 +171,7 @@ use near_sdk::{near_bindgen, AccountId, Balance, PanicOnDefault};
 pub struct BuyMeACoffee {
   owner: AccountId,
   coffee_near_from: UnorderedMap<AccountId, Balance>,
-  top_coffee_buyer: Option<(AccountId, Balance)>,
+  top_coffee_buyer: LazyOption<(AccountId, Balance)>, // FIXME: change in commit
 }
 
 #[near_bindgen]
@@ -190,8 +190,8 @@ impl BuyMeACoffee {
       // storage key. It could just have been 0, but you should make a habit out
       // of properly prefixing your storage items. This will help whenever you
       // want to interact with raw onchain storage.
-      coffee_near_from: UnorderedMap::new("coffee.tifrel.testnet.map".as_bytes()),
-      top_coffee_buyer: None,
+      coffee_near_from: UnorderedMap::new(b"m"),
+      top_coffee_buyer: LazyOption::new(b"o", None),
     }
   }
 }
@@ -206,27 +206,41 @@ Let's unravel this by field:
   very start of your contract and fail early to avoid unnecessary gas costs.
 - `coffee_near_from` tracks cumulative donations by `AccountId`. The natural
   type for this would be `std::collections::HashMap`, so why don't we use that?
-  We compile to WebAssembly, and a significant implication is the inavailability
-  of `std`. More on that in the following paragraph.
+  It's inefficient for the blockchain. You should never use anything from
+  `std::collections` for on-chain storage. In fact, most parts of `std` are not
+  available on the chain, and I will touch on that in the following paragraph.
 - `top_coffee_buyer` is a pretty self-explanatory leaderboard with a single
   entry.
 
-If you've just finished [the Rust book](https://doc.rust-lang.org/stable/book/),
-you might ask why would people want to give up on `std`? One reason is that
-`std` has things like TCP socket abstractions in it, and making these available
-on-chain brings with it the headache of
-[the oracle problem](https://blog.chain.link/what-is-the-blockchain-oracle-problem/)
-on steroids, as you could e.g. have WebSockets connections inside smart
-contracts. But clearly, things like `Vec` and `HashMap` are base data structures
-and not having them sounds like a royal pain. It would be, if it wasn't for
-[`near_sdk::collections`](https://docs.rs/near-sdk/latest/near_sdk/collections/index.html).
-The module not only contains collection types to make our lives more liveable,
-but these data structures are optimized for the on-chain trie storage, which is
-quite different from your computers RAM, which the data structures in
-`std::collections` are optimized for. The contained `Vector` and `LazyOption`
-types are straight-forward to use and do not come with alternatives, so
-duplicating the docs here isn't really worth it. We are interested in something
-akin to a `HashMap`, and there are three types on offer:
+Clearly, things like `Vec` and `HashMap` are base data structures so why would
+you prefer not to use them? The answer has two aspecs:
+
+- The collection types from `std` are optimized for your average computers RAM,
+  which is quite different from the on-chain trie storage.
+  [`near_sdk::collections`](https://docs.rs/near-sdk/latest/near_sdk/collections/index.html)
+  has collections optimized for on-chain storage, and your contract struct
+  should always be based on those.
+- The types from `near_sdk::collections` do not implement `serde::Serialize` or
+  `serde::Deserialize`, but JSON is the default of talking to the off-chain
+  world. Returning these types from contract methods or accepting them as
+  parameters thus requires wrapping them in a custom type and manually
+  implementing the required traits. This is where the collections from `std`
+  shine, as for those we can simply `#[derive(Serialize, Deserialize)]`.
+
+`std` contains a lot more than collection types. Since smart contracts on most
+chains are required to be deterministic, the abstractions from `std` cannot be
+made available on-chain. Reading files from the machine that executes your
+contract is not only a security risk to that machine, but smart contracts cannot
+be deterministic if they had access to e.g. `/dev/urandom`. The same goes for
+the ability to interact with TCP sockets. We could go on, but it's easiest for
+us to assume that the only-thing available from `std` are some basic data types
+(`Vec`, `HashMap`, `Option`), and that these data types are not suited for
+storing on the chain.
+
+The contained `Vector` and `LazyOption` types from `near_sdk::collections` are
+straight-forward to use and do not come with alternatives, so duplicating the
+docs here isn't really worth it. We are interested in something akin to a
+`HashMap`, and there are three types on offer:
 
 <!-- FIXME:
 Is `LookupMap` actually the most efficient option? => Revisit when profiled
@@ -260,10 +274,8 @@ and require two attributes:
   simply tells NEAR that we explicitly opt out of using the `Default` trait, and
   thus allows us to compile the contract without this implementation.
 
-As a sidenote, we should have probably implemented `top_coffee_buyer` as
-`near_sdk::collections::LazyOption`. To pretend at least some brevity, I will
-skip it here, but it is done that way in the
-[actual implementation on GitHub](https://github.com/tifrel/build-on-near/commit/dce408d7c522c755d746e3c85ee7d2344e679fc3).
+Check out the full implementation
+[on GitHub](https://github.com/tifrel/build-on-near/tree/81df974a286932805e01ac32ad19dcfc01657934)
 
 ## Deploying to testnet
 
@@ -385,4 +397,4 @@ of understanding and applying the following concepts:
 You could actually pick up from here doing some integration tests. That however,
 is a topic for another post.
 
-<!-- You could actually pick up from here doing some integration tests. That however, is a topic for [another post](../build-on-near-2). -->
+<!-- TODO: ou could actually pick up from here doing some integration tests. That however, is a topic for [another post](../build-on-near-2). -->
